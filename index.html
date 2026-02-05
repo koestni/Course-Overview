@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TUM Kursübersicht</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -65,6 +66,14 @@
         .subtitle {
             font-size: 16px;
             opacity: 0.95;
+        }
+
+        /* Loading indicator */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--tum-blue);
+            font-size: 18px;
         }
 
         /* Stats */
@@ -273,9 +282,6 @@
             cursor: pointer;
             transition: all 0.2s;
             font-size: 14px;
-            text-decoration: none;
-            color: inherit;
-            display: inline-block;
         }
 
         .icon-btn:hover {
@@ -547,11 +553,13 @@
     <div class="header">
         <div class="header-content">
             <h1>📚 TUM Kursübersicht</h1>
-            <p class="subtitle"></p>
+            <p class="subtitle">Gemeinsam erstellt von Studierenden der Technischen Universität München</p>
         </div>
     </div>
 
     <div class="container">
+        <div id="loadingIndicator" class="loading">Lade Kurse...</div>
+
         <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card">
@@ -631,13 +639,13 @@
                 <div class="usage-step">
                     <div class="step-number">3</div>
                     <div class="step-text">
-                        <strong>Teilen:</strong> Teile den Link zu dieser Seite mit deinen Kommilitonen. Alle können gemeinsam Kurse hinzufügen und sehen die gleichen Daten.
+                        <strong>Teilen:</strong> Teile den Link zu dieser Seite mit deinen Kommilitonen. Alle Änderungen werden in Echtzeit synchronisiert!
                     </div>
                 </div>
                 <div class="usage-step">
                     <div class="step-number">4</div>
                     <div class="step-text">
-                        <strong>Bewerten & Tipps teilen:</strong> Aktualisiere nach Kursabschluss deine Bewertung und teile hilfreiche Insider-Tipps für deine Kommilitonen.
+                        <strong>Bewerten & Tipps teilen:</strong> Aktualisiere nach Kursabschluss deine Bewertung und teile hilfreiche Insider-Tipps für kommende Jahrgänge.
                     </div>
                 </div>
             </div>
@@ -750,7 +758,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Aufwand (h/Woche)</label>
-                        <input type="number" class="form-input" id="courseEffort" min="0" max="40" placeholder="z.B. 8">
+                        <input type="number" class="form-input" id="courseEffort" min="0" max="40" step="0.5" placeholder="z.B. 8">
                     </div>
                 </div>
 
@@ -779,145 +787,114 @@
     </div>
 
     <script>
+        // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Supabase Credentials
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';  // z.B. 'https://abcdefghijk.supabase.co'
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';  // Dein anon public key
+
+        // Supabase Client initialisieren
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let courses = [];
         let currentFilter = 'alle';
 
-        // Storage abstraction layer
-        const Storage = {
-            async get(key) {
-                if (window.storage) {
-                    try {
-                        const result = await window.storage.get(key, true);
-                        if (result && result.value) {
-                            return JSON.parse(result.value);
-                        }
-                    } catch (e) {}
-                }
-                const value = localStorage.getItem(key);
-                return value ? JSON.parse(value) : null;
-            },
-
-            async set(key, value) {
-                const stringValue = JSON.stringify(value);
-                if (window.storage) {
-                    try {
-                        await window.storage.set(key, stringValue, true);
-                        return;
-                    } catch (e) {}
-                }
-                localStorage.setItem(key, stringValue);
-            },
-
-            async delete(key) {
-                if (window.storage) {
-                    try {
-                        await window.storage.delete(key, true);
-                        return;
-                    } catch (e) {}
-                }
-                localStorage.removeItem(key);
-            },
-
-            async list(prefix) {
-                if (window.storage) {
-                    try {
-                        const result = await window.storage.list(prefix, true);
-                        if (result && result.keys) {
-                            return result.keys;
-                        }
-                    } catch (e) {}
-                }
-                const keys = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key.startsWith(prefix)) {
-                        keys.push(key);
-                    }
-                }
-                return keys;
-            }
-        };
-
+        // Initialize
         async function init() {
             await loadCourses();
-            renderCourses();
-            updateStats();
             setupSearch();
+            hideLoading();
         }
 
+        function hideLoading() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        // Load courses from Supabase
         async function loadCourses() {
             try {
-                const keys = await Storage.list('course:');
-                courses = [];
-                for (const key of keys) {
-                    const course = await Storage.get(key);
-                    if (course) {
-                        courses.push(course);
-                    }
-                }
+                const { data, error } = await supabase
+                    .from('courses')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                courses = data || [];
+                renderCourses();
+                updateStats();
             } catch (error) {
-                courses = [];
+                console.error('Error loading courses:', error);
+                alert('Fehler beim Laden der Kurse. Bitte überprüfe deine Supabase-Konfiguration.');
             }
         }
 
-        async function saveCourse(course) {
-            try {
-                await Storage.set(`course:${course.id}`, course);
-            } catch (error) {
-                alert('Fehler beim Speichern. Bitte versuche es erneut.');
-            }
-        }
-
-        async function deleteCourseFromStorage(id) {
-            try {
-                await Storage.delete(`course:${id}`);
-            } catch (error) {
-                console.error('Error deleting course:', error);
-            }
-        }
-
+        // Open modal
         function openModal() {
             document.getElementById('courseModal').classList.add('active');
         }
 
+        // Close modal
         function closeModal() {
             document.getElementById('courseModal').classList.remove('active');
             document.getElementById('courseForm').reset();
         }
 
+        // Add course
         document.getElementById('courseForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const course = {
-                id: Date.now(),
                 name: document.getElementById('courseName').value,
                 fachbereich: document.getElementById('courseFachbereich').value,
                 ects: parseInt(document.getElementById('courseECTS').value),
                 semester: document.getElementById('courseSemester').value,
                 format: document.getElementById('courseFormat').value,
                 difficulty: document.getElementById('courseDifficulty').value,
-                effort: parseFloat(document.getElementById('courseEffort').value) || 0,
-                exam: document.getElementById('courseExam').value,
-                rating: parseFloat(document.getElementById('courseRating').value) || 0,
-                tips: document.getElementById('courseTips').value
+                effort: parseFloat(document.getElementById('courseEffort').value) || null,
+                exam: document.getElementById('courseExam').value || null,
+                rating: parseFloat(document.getElementById('courseRating').value) || null,
+                tips: document.getElementById('courseTips').value || null
             };
 
-            await saveCourse(course);
-            courses.push(course);
-            renderCourses();
-            updateStats();
-            closeModal();
+            try {
+                const { data, error } = await supabase
+                    .from('courses')
+                    .insert([course])
+                    .select();
+
+                if (error) throw error;
+
+                courses.unshift(data[0]);
+                renderCourses();
+                updateStats();
+                closeModal();
+            } catch (error) {
+                console.error('Error adding course:', error);
+                alert('Fehler beim Hinzufügen des Kurses: ' + error.message);
+            }
         });
 
+        // Delete course
         async function deleteCourse(id) {
-            if (confirm('Möchtest du diesen Kurs wirklich löschen?')) {
-                await deleteCourseFromStorage(id);
+            if (!confirm('Möchtest du diesen Kurs wirklich löschen?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('courses')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
                 courses = courses.filter(c => c.id !== id);
                 renderCourses();
                 updateStats();
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                alert('Fehler beim Löschen des Kurses: ' + error.message);
             }
         }
 
+        // Filter by difficulty
         function filterDifficulty(difficulty) {
             currentFilter = difficulty;
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -927,12 +904,14 @@
             renderCourses();
         }
 
+        // Search
         function setupSearch() {
             document.getElementById('searchInput').addEventListener('input', function(e) {
                 renderCourses();
             });
         }
 
+        // Render courses
         function renderCourses() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             let filteredCourses = courses;
@@ -987,26 +966,38 @@
             `).join('');
         }
 
+        // Update stats
         function updateStats() {
             const total = courses.length;
             const avgECTS = total > 0 ? courses.reduce((sum, c) => sum + c.ects, 0) / total : 0;
-            const avgEffort = total > 0 ? courses.reduce((sum, c) => sum + c.effort, 0) / total : 0;
+            const avgEffort = total > 0 ? courses.filter(c => c.effort).reduce((sum, c) => sum + c.effort, 0) / courses.filter(c => c.effort).length : 0;
             const ratedCourses = courses.filter(c => c.rating > 0);
             const avgRating = ratedCourses.length > 0 ? ratedCourses.reduce((sum, c) => sum + c.rating, 0) / ratedCourses.length : 0;
 
             document.getElementById('stat-total').textContent = total;
             document.getElementById('stat-ects').textContent = avgECTS.toFixed(1);
-            document.getElementById('stat-aufwand').textContent = avgEffort.toFixed(1);
+            document.getElementById('stat-aufwand').textContent = avgEffort > 0 ? avgEffort.toFixed(1) : '0.0';
             document.getElementById('stat-rating').textContent = avgRating > 0 ? avgRating.toFixed(1) + ' ⭐' : '—';
         }
 
+        // Close modal on outside click
         document.getElementById('courseModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
             }
         });
 
+        // Initialize app
         init();
+
+        // Subscribe to real-time changes
+        supabase
+            .channel('courses')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, payload => {
+                console.log('Change received!', payload);
+                loadCourses();
+            })
+            .subscribe();
     </script>
 </body>
 </html>
