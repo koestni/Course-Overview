@@ -839,8 +839,8 @@
         }
 
         // Add course
-        document.getElementById('courseForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+       document.getElementById('courseForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
 
             const course = {
                 name: document.getElementById('courseName').value,
@@ -856,7 +856,7 @@
             };
 
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('courses')
                     .insert([course])
                     .select();
@@ -878,7 +878,7 @@
             if (!confirm('Möchtest du diesen Kurs wirklich löschen?')) return;
 
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('courses')
                     .delete()
                     .eq('id', id);
@@ -991,7 +991,7 @@
         init();
 
         // Subscribe to real-time changes
-        supabase
+        supabaseClient
             .channel('courses')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, payload => {
                 console.log('Change received!', payload);
