@@ -786,46 +786,46 @@
         </div>
     </div>
 
-    <script>
-        // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Supabase Credentials
-        const SUPABASE_URL = 'https://jwwfrbodwalnygcawhmv.supabase.co';  // z.B. 'https://abcdefghijk.supabase.co'
-        const SUPABASE_KEY = 'sb_publishable_eYi4vhmS-EGg9iEZAxc8Gw_jttyVG_F';  // Dein anon public key
+  <script>
+    // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Supabase Credentials
+    const SUPABASE_URL = 'https://jwwfrbodwalnygcawhmv.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_eYi4vhmS-EGg9iEZAxc8Gw_jttyVG_F'; // Prüfe diesen Key nochmal im Dashboard (er ist ungewöhnlich kurz)
 
-        // Supabase Client initialisieren
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ÄNDERUNG: Variable umbenannt in supabaseClient
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let courses = [];
-        let currentFilter = 'alle';
+    let courses = [];
+    let currentFilter = 'alle';
 
-        // Initialize
-        async function init() {
-            await loadCourses();
-            setupSearch();
-            hideLoading();
+    async function init() {
+        await loadCourses();
+        setupSearch();
+        hideLoading();
+    }
+
+    function hideLoading() {
+        const loader = document.getElementById('loadingIndicator');
+        if (loader) loader.style.display = 'none';
+    }
+
+    async function loadCourses() {
+        try {
+            // Überall supabaseClient statt supabase nutzen
+            const { data, error } = await supabaseClient
+                .from('courses')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            courses = data || [];
+            renderCourses();
+            updateStats();
+        } catch (error) {
+            console.error('Error loading courses:', error);
+            // alert('Fehler beim Laden...');
         }
-
-        function hideLoading() {
-            document.getElementById('loadingIndicator').style.display = 'none';
-        }
-
-        // Load courses from Supabase
-        async function loadCourses() {
-            try {
-                const { data, error } = await supabase
-                    .from('courses')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                courses = data || [];
-                renderCourses();
-                updateStats();
-            } catch (error) {
-                console.error('Error loading courses:', error);
-                alert('Fehler beim Laden der Kurse. Bitte überprüfe deine Supabase-Konfiguration.');
-            }
-        }
+    }
 
         // Open modal
         function openModal() {
