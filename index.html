@@ -1061,7 +1061,7 @@
 
                 renderCourses();
                 renderTopCourses();
-                // updateStats();
+                
                 closeModal();
                 
                 // Success feedback
@@ -1086,7 +1086,7 @@
                 courses = courses.filter(c => c.id !== id);
                 renderCourses();
                 renderTopCourses();
-                updateStats();
+               
             } catch (error) {
                 console.error('Error deleting course:', error);
                 alert('Fehler beim Löschen: ' + error.message);
