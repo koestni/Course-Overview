@@ -36,9 +36,11 @@
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Animated background particles */
+        /* Optimized background - static gradient instead of multiple radial gradients */
         body::before {
             content: '';
             position: fixed;
@@ -46,12 +48,12 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
             pointer-events: none;
             z-index: -1;
+            will-change: transform;
         }
 
         .container {
@@ -60,7 +62,7 @@
             padding: 20px;
         }
 
-        /* Header */
+        /* Header - Optimized shimmer animation (every 6 seconds) */
         .header {
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
             backdrop-filter: blur(20px);
@@ -70,23 +72,25 @@
             margin-bottom: 40px;
             position: relative;
             overflow: hidden;
+            transform: translateZ(0);
         }
 
         .header::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg);
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: skewX(-25deg);
             animation: shimmer 6s infinite;
+            will-change: transform;
         }
 
         @keyframes shimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            0%, 85% { left: -100%; }
+            100% { left: 200%; }
         }
 
         .header-content {
@@ -114,7 +118,7 @@
             font-weight: 400;
         }
 
-        /* Top Courses Section */
+        /* Top Courses - Faster transitions */
         .top-courses {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -123,6 +127,7 @@
             padding: 30px;
             margin-bottom: 40px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateZ(0);
         }
 
         .top-courses-title {
@@ -149,9 +154,11 @@
             border: 1px solid var(--glass-border);
             border-radius: 12px;
             padding: 25px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .top-course-card::before {
@@ -163,13 +170,13 @@
             bottom: 0;
             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.2s;
         }
 
         .top-course-card:hover {
-            transform: translateY(-5px) scale(1.02);
+            transform: translateY(-3px);
             border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
         }
 
         .top-course-card:hover::before {
@@ -190,6 +197,7 @@
             font-size: 18px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             border: 2px solid rgba(255,255,255,0.2);
+            transform: translateZ(0);
         }
 
         .top-course-rank.gold {
@@ -247,7 +255,7 @@
             margin-top: 15px;
         }
 
-        /* Stats */
+        /* Stats - Faster hover */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -261,9 +269,11 @@
             border: 1px solid var(--glass-border);
             padding: 25px;
             border-radius: 12px;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .stat-card::after {
@@ -277,9 +287,9 @@
         }
 
         .stat-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             border-color: rgba(59, 130, 246, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
         .stat-value {
@@ -324,7 +334,7 @@
             border-radius: 10px;
             font-size: 15px;
             color: var(--text-primary);
-            transition: all 0.3s;
+            transition: all 0.2s;
             backdrop-filter: blur(10px);
         }
 
@@ -352,6 +362,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .filter-btn {
@@ -362,16 +373,17 @@
             font-size: 14px;
             color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             backdrop-filter: blur(10px);
             font-weight: 500;
+            will-change: transform;
         }
 
         .filter-btn:hover {
             background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 255, 255, 0.2);
             color: var(--text-primary);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .filter-btn.active {
@@ -379,6 +391,32 @@
             color: white;
             border-color: transparent;
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Rating filter dropdown */
+        .filter-select {
+            padding: 10px 15px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            min-width: 140px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .filter-select option {
+            background: var(--primary-dark);
+            color: var(--text-primary);
         }
 
         .btn-primary {
@@ -390,10 +428,12 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
             position: relative;
             overflow: hidden;
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .btn-primary::before {
@@ -404,7 +444,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
+            transition: left 0.4s;
         }
 
         .btn-primary:hover {
@@ -416,7 +456,7 @@
             left: 100%;
         }
 
-        /* Table */
+        /* Table - Optimized */
         .table-container {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -424,6 +464,7 @@
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateZ(0);
         }
 
         table {
@@ -448,12 +489,13 @@
         }
 
         tbody tr {
-            transition: all 0.3s;
+            transition: background-color 0.15s ease;
             border-bottom: 1px solid var(--glass-border);
+            will-change: background-color;
         }
 
         tbody tr:hover {
-            background: rgba(59, 130, 246, 0.08);
+            background: rgba(59, 130, 246, 0.06);
         }
 
         tbody tr:last-child {
@@ -533,15 +575,16 @@
             border: 1px solid var(--glass-border);
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.15s;
             font-size: 14px;
             color: var(--text-secondary);
             backdrop-filter: blur(10px);
+            will-change: transform;
         }
 
         .icon-btn:hover {
             background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             border-color: rgba(255, 255, 255, 0.2);
         }
 
@@ -555,7 +598,7 @@
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
 
-        /* Modal */
+        /* Modal - Optimized animations */
         .modal {
             display: none;
             position: fixed;
@@ -569,16 +612,13 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
         .modal.active {
             display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            opacity: 1;
         }
 
         .modal-content {
@@ -591,18 +631,13 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
         }
 
-        @keyframes slideUp {
-            from { 
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .modal.active .modal-content {
+            transform: scale(1) translateY(0);
         }
 
         .modal-header {
@@ -651,7 +686,7 @@
             font-size: 15px;
             font-family: inherit;
             color: var(--text-primary);
-            transition: all 0.3s;
+            transition: all 0.2s;
             backdrop-filter: blur(10px);
         }
 
@@ -687,14 +722,16 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             backdrop-filter: blur(10px);
+            will-change: transform;
         }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
             color: var(--text-primary);
             border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
 
         .empty-state {
@@ -724,6 +761,7 @@
             padding: 35px;
             margin-top: 40px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateZ(0);
         }
 
         .guide-title {
@@ -809,6 +847,7 @@
             font-size: 14px;
             flex-shrink: 0;
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transform: translateZ(0);
         }
 
         .step-text {
@@ -822,10 +861,10 @@
             font-weight: 600;
         }
 
-        /* Scrollbar styling */
+        /* Optimized scrollbar */
         ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -834,7 +873,7 @@
 
         ::-webkit-scrollbar-thumb {
             background: var(--glass-border);
-            border-radius: 5px;
+            border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
@@ -886,8 +925,18 @@
                 padding: 25px;
                 margin: 10px;
             }
+
+            .filter-group {
+                width: 100%;
+                justify-content: stretch;
+            }
+
+            .filter-btn, .filter-select {
+                flex: 1;
+            }
         }
     </style>
+<base target="_blank">
 </head>
 <body>
     <div class="header">
@@ -902,8 +951,10 @@
         <div class="top-courses">
             <div class="top-courses-title">🏆 Top bewertete Kurse</div>
             <div class="top-courses-grid" id="topCoursesList">
-                <div style="text-align: center; padding: 30px; color: var(--text-secondary);">
-                    Bewerte Kurse, um die Top-Liste zu sehen!
+                <div style="text-align: center; padding: 30px; color: var(--text-secondary); grid-column: 1 / -1;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">🌟</div>
+                    <div style="font-size: 18px; margin-bottom: 10px;">Noch keine bewerteten Kurse</div>
+                    <div style="font-size: 14px; opacity: 0.7;">Sei der Erste und bewerte einen Kurs!</div>
                 </div>
             </div>
         </div>
@@ -915,10 +966,20 @@
                 <input type="text" id="searchInput" placeholder="Kurse durchsuchen...">
             </div>
             <div class="filter-group">
-                <button class="filter-btn active" onclick="filterDifficulty('alle')">Alle</button>
-                <button class="filter-btn" onclick="filterDifficulty('leicht')">Leicht</button>
-                <button class="filter-btn" onclick="filterDifficulty('mittel')">Mittel</button>
-                <button class="filter-btn" onclick="filterDifficulty('schwer')">Schwer</button>
+                <button class="filter-btn active" onclick="filterDifficulty('alle')" data-filter="alle">Alle</button>
+                <button class="filter-btn" onclick="filterDifficulty('leicht')" data-filter="leicht">Leicht</button>
+                <button class="filter-btn" onclick="filterDifficulty('mittel')" data-filter="mittel">Mittel</button>
+                <button class="filter-btn" onclick="filterDifficulty('schwer')" data-filter="schwer">Schwer</button>
+                
+                <!-- Rating Filter -->
+                <select class="filter-select" id="ratingFilter" onchange="filterRating(this.value)">
+                    <option value="alle">⭐ Alle Bewertungen</option>
+                    <option value="4">⭐ 4+ Sterne</option>
+                    <option value="4.5">⭐ 4.5+ Sterne</option>
+                    <option value="3">⭐ 3+ Sterne</option>
+                    <option value="bewertet">⭐ Nur bewertet</option>
+                    <option value="nicht-bewertet">⭐ Nicht bewertet</option>
+                </select>
             </div>
             <button class="btn-primary" onclick="openModal()">+ Kurs hinzufügen</button>
         </div>
@@ -967,7 +1028,7 @@
                 <div class="usage-step">
                     <div class="step-number">3</div>
                     <div class="step-text">
-                        <strong>Suchen & Filtern:</strong> Nutze die Suchleiste und Filter, um schnell passende Kurse zu finden.
+                        <strong>Suchen & Filtern:</strong> Nutze die Suchleiste und Filter (Schwierigkeit + Bewertung), um schnell passende Kurse zu finden.
                     </div>
                 </div>
                 <div class="usage-step">
@@ -1122,7 +1183,9 @@
 
         let courses = [];
         let currentFilter = 'alle';
+        let currentRatingFilter = 'alle';
         let editingCourseId = null;
+        let searchTimeout = null;
 
         async function init() {
             await loadCourses();
@@ -1326,14 +1389,29 @@
             currentFilter = difficulty;
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
+                if (btn.dataset.filter === difficulty) {
+                    btn.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
+            renderCourses();
+        }
+
+        function filterRating(rating) {
+            currentRatingFilter = rating;
             renderCourses();
         }
 
         function setupSearch() {
-            document.getElementById('searchInput').addEventListener('input', function(e) {
-                renderCourses();
+            const searchInput = document.getElementById('searchInput');
+            
+            // Debounced search for better performance
+            searchInput.addEventListener('input', function(e) {
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                searchTimeout = setTimeout(() => {
+                    renderCourses();
+                }, 150);
             });
         }
 
@@ -1341,10 +1419,33 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             let filteredCourses = courses;
 
+            // Difficulty filter
             if (currentFilter !== 'alle') {
                 filteredCourses = filteredCourses.filter(c => c.difficulty === currentFilter);
             }
 
+            // Rating filter
+            if (currentRatingFilter !== 'alle') {
+                switch(currentRatingFilter) {
+                    case '4':
+                        filteredCourses = filteredCourses.filter(c => c.rating && c.rating >= 4);
+                        break;
+                    case '4.5':
+                        filteredCourses = filteredCourses.filter(c => c.rating && c.rating >= 4.5);
+                        break;
+                    case '3':
+                        filteredCourses = filteredCourses.filter(c => c.rating && c.rating >= 3);
+                        break;
+                    case 'bewertet':
+                        filteredCourses = filteredCourses.filter(c => c.rating && c.rating > 0);
+                        break;
+                    case 'nicht-bewertet':
+                        filteredCourses = filteredCourses.filter(c => !c.rating || c.rating === 0);
+                        break;
+                }
+            }
+
+            // Search filter
             if (searchTerm) {
                 filteredCourses = filteredCourses.filter(c => 
                     c.name.toLowerCase().includes(searchTerm) ||
@@ -1371,8 +1472,12 @@
                 return;
             }
 
-            tbody.innerHTML = filteredCourses.map(course => `
-                <tr>
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            filteredCourses.forEach(course => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td>
                         <div class="course-name">${course.name}</div>
                         ${course.created_by ? `<div class="created-by">von ${course.created_by}</div>` : ''}
@@ -1392,8 +1497,12 @@
                             <button class="icon-btn delete" onclick="deleteCourse(${course.id})" title="Löschen">🗑️</button>
                         </div>
                     </td>
-                </tr>
-            `).join('');
+                `;
+                fragment.appendChild(tr);
+            });
+
+            tbody.innerHTML = '';
+            tbody.appendChild(fragment);
         }
 
        
