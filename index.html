@@ -254,7 +254,17 @@
             background-clip: text;
             margin-top: 15px;
         }
-
+            .search-icon {
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-muted); /* Nutzt deine definierte graue Farbe */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                pointer-events: none; /* Klicks gehen durch das Icon direkt ins Input-Feld */
+        }
         /* Stats - Faster hover */
         .stats-grid {
             display: grid;
