@@ -666,7 +666,7 @@
     <div class="header">
         <div class="header-content">
             <h1>📚 TUM Kursübersicht</h1>
-            <p class="subtitle"></p>
+            <p class="subtitle">Gemeinsam erstellt von Studierenden der Technischen Universität München</p>
         </div>
     </div>
 
@@ -681,7 +681,7 @@
             </div>
         </div>
 
-     
+    
 
         <!-- Controls -->
         <div class="controls">
@@ -996,9 +996,21 @@
         }
 
         function closeModal() {
-            document.getElementById('courseModal').classList.remove('active');
-            document.getElementById('courseForm').reset();
+            const modal = document.getElementById('courseModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            const form = document.getElementById('courseForm');
+            if (form) {
+                form.reset();
+            }
             editingCourseId = null;
+            
+            // Reset modal title and button
+            const modalTitle = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('submitBtn');
+            if (modalTitle) modalTitle.textContent = 'Neuer Kurs';
+            if (submitBtn) submitBtn.textContent = 'Kurs hinzufügen';
         }
 
         document.getElementById('courseForm').addEventListener('submit', async function(e) {
@@ -1030,7 +1042,7 @@
                     if (error) throw error;
 
                     const index = courses.findIndex(c => c.id === editingCourseId);
-                    if (index !== -1) {
+                    if (index !== -1 && data && data[0]) {
                         courses[index] = data[0];
                     }
                 } else {
@@ -1042,13 +1054,18 @@
 
                     if (error) throw error;
 
-                    courses.unshift(data[0]);
+                    if (data && data[0]) {
+                        courses.unshift(data[0]);
+                    }
                 }
 
                 renderCourses();
                 renderTopCourses();
                 updateStats();
                 closeModal();
+                
+                // Success feedback
+                console.log('Kurs erfolgreich gespeichert!');
             } catch (error) {
                 console.error('Error saving course:', error);
                 alert('Fehler beim Speichern: ' + error.message);
