@@ -916,7 +916,7 @@
                 courses = data || [];
                 renderCourses();
                 renderTopCourses();
-                updateStats();
+    
             } catch (error) {
                 console.error('Error loading courses:', error);
             }
@@ -1061,7 +1061,7 @@
 
                 renderCourses();
                 renderTopCourses();
-                updateStats();
+                // updateStats();
                 closeModal();
                 
                 // Success feedback
@@ -1167,20 +1167,7 @@
             `).join('');
         }
 
-        function updateStats() {
-            const total = courses.length;
-            const avgECTS = total > 0 ? courses.reduce((sum, c) => sum + c.ects, 0) / total : 0;
-            const coursesWithEffort = courses.filter(c => c.effort);
-            const avgEffort = coursesWithEffort.length > 0 ? coursesWithEffort.reduce((sum, c) => sum + c.effort, 0) / coursesWithEffort.length : 0;
-            const ratedCourses = courses.filter(c => c.rating > 0);
-            const avgRating = ratedCourses.length > 0 ? ratedCourses.reduce((sum, c) => sum + c.rating, 0) / ratedCourses.length : 0;
-
-            document.getElementById('stat-total').textContent = total;
-            document.getElementById('stat-ects').textContent = avgECTS.toFixed(1);
-            document.getElementById('stat-aufwand').textContent = avgEffort > 0 ? avgEffort.toFixed(1) : '0.0';
-            document.getElementById('stat-rating').textContent = avgRating > 0 ? avgRating.toFixed(1) + ' ⭐' : '—';
-        }
-
+       
         document.getElementById('courseModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
