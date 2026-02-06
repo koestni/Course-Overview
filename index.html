@@ -68,12 +68,106 @@
             opacity: 0.95;
         }
 
-        /* Loading indicator */
-        .loading {
-            text-align: center;
-            padding: 40px;
+        /* Top Courses Section */
+        .top-courses {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .top-courses-title {
+            font-size: 22px;
+            font-weight: 600;
             color: var(--tum-blue);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .top-course-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .top-course-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(48, 112, 179, 0.15);
+            border-color: var(--tum-blue);
+        }
+
+        .top-course-rank {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: var(--tum-blue);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .top-course-rank.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+        }
+
+        .top-course-rank.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+            color: #333;
+        }
+
+        .top-course-rank.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #e9a664 100%);
+            color: white;
+        }
+
+        .top-course-name {
             font-size: 18px;
+            font-weight: 600;
+            color: var(--tum-blue-dark);
+            margin-bottom: 10px;
+            margin-top: 5px;
+        }
+
+        .top-course-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .top-course-meta-item {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .top-course-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--warning);
+            margin-top: 10px;
         }
 
         /* Stats */
@@ -240,6 +334,13 @@
             color: var(--tum-blue-dark);
         }
 
+        .created-by {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 3px;
+        }
+
         .badge {
             display: inline-block;
             padding: 4px 10px;
@@ -286,6 +387,14 @@
 
         .icon-btn:hover {
             background: var(--tum-gray-light);
+        }
+
+        .icon-btn.edit {
+            color: var(--tum-blue);
+        }
+
+        .icon-btn.edit:hover {
+            background: #e3f2fd;
         }
 
         .icon-btn.delete {
@@ -531,7 +640,7 @@
             }
 
             table {
-                min-width: 1200px;
+                min-width: 1300px;
             }
 
             .controls {
@@ -546,6 +655,10 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
+
+            .top-courses-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -553,12 +666,20 @@
     <div class="header">
         <div class="header-content">
             <h1>📚 TUM Kursübersicht</h1>
-            <p class="subtitle">Gemeinsam erstellt von Studierenden der Technischen Universität München</p>
+            <p class="subtitle"></p>
         </div>
     </div>
 
     <div class="container">
-        <div id="loadingIndicator" class="loading">Lade Kurse...</div>
+        <!-- Top Courses -->
+        <div class="top-courses">
+            <div class="top-courses-title">🏆 Top bewertete Kurse</div>
+            <div class="top-courses-grid" id="topCoursesList">
+                <div style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                    Bewerte Kurse, um die Top-Liste zu sehen!
+                </div>
+            </div>
+        </div>
 
         <!-- Stats -->
         <div class="stats-grid">
@@ -627,25 +748,25 @@
                 <div class="usage-step">
                     <div class="step-number">1</div>
                     <div class="step-text">
-                        <strong>Kurse hinzufügen:</strong> Klicke auf "+ Kurs hinzufügen" und fülle das Formular aus. Pflichtfelder sind Kursname, Fachbereich, ECTS, Semester, Format und Schwierigkeit.
+                        <strong>Kurse hinzufügen:</strong> Klicke auf "+ Kurs hinzufügen" und fülle das Formular aus. Dein Name wird gespeichert, damit man weiß, wer den Kurs eingetragen hat.
                     </div>
                 </div>
                 <div class="usage-step">
                     <div class="step-number">2</div>
                     <div class="step-text">
-                        <strong>Suchen & Filtern:</strong> Nutze die Suchleiste, um Kurse nach Namen, Fachbereich oder Tipps zu durchsuchen. Mit den Filter-Buttons kannst du nach Schwierigkeitsgrad filtern.
+                        <strong>Kurse bearbeiten:</strong> Klicke auf den ✏️ Button, um Tippfehler zu korrigieren oder Informationen zu aktualisieren.
                     </div>
                 </div>
                 <div class="usage-step">
                     <div class="step-number">3</div>
                     <div class="step-text">
-                        <strong>Teilen:</strong> Teile den Link zu dieser Seite mit deinen Kommilitonen. Alle Änderungen werden in Echtzeit synchronisiert!
+                        <strong>Suchen & Filtern:</strong> Nutze die Suchleiste und Filter, um schnell passende Kurse zu finden.
                     </div>
                 </div>
                 <div class="usage-step">
                     <div class="step-number">4</div>
                     <div class="step-text">
-                        <strong>Bewerten & Tipps teilen:</strong> Aktualisiere nach Kursabschluss deine Bewertung und teile hilfreiche Insider-Tipps für kommende Jahrgänge.
+                        <strong>Top-Liste:</strong> Die besten Kurse (basierend auf Bewertungen) werden oben prominent angezeigt!
                     </div>
                 </div>
             </div>
@@ -655,46 +776,38 @@
                     <h4>Spalten-Guide</h4>
                     <div class="guide-item">
                         <strong>Kursname</strong>
-                        <span>Vollständiger Name des Kurses (Wie in Moodle)</span>
+                        <span>Vollständiger Name + Ersteller</span>
                     </div>
                     <div class="guide-item">
                         <strong>Fachbereich</strong>
-                        <span>z.B. Informatik, Mathematik, Maschinenwesen</span>
+                        <span>z.B. Informatik, Mathematik</span>
                     </div>
                     <div class="guide-item">
                         <strong>ECTS</strong>
-                        <span>Credit Points (European Credit Transfer System)</span>
+                        <span>Credit Points</span>
                     </div>
                     <div class="guide-item">
                         <strong>Semester</strong>
-                        <span>WS = Wintersemester, SS = Sommersemester</span>
-                    </div>
-                    <div class="guide-item">
-                        <strong>Format</strong>
-                        <span>Vorlesung, Seminar, Praktikum, Projekt, etc.</span>
+                        <span>WS/SS/WS+SS</span>
                     </div>
                 </div>
                 <div class="guide-column">
-                    <h4>Weitere Infos</h4>
+                    <h4>Features</h4>
                     <div class="guide-item">
-                        <strong>Schwierigkeit</strong>
-                        <span>Leicht / Mittel / Schwer (subjektiv)</span>
+                        <strong>✏️ Bearbeiten</strong>
+                        <span>Korrigiere Tippfehler oder aktualisiere Infos</span>
                     </div>
                     <div class="guide-item">
-                        <strong>Aufwand</strong>
-                        <span>Stunden pro Woche (inkl. Selbststudium)</span>
+                        <strong>🗑️ Löschen</strong>
+                        <span>Entferne fehlerhafte Einträge</span>
                     </div>
                     <div class="guide-item">
-                        <strong>Prüfung</strong>
-                        <span>Klausur, Projekt, Hausarbeit, mündlich, etc.</span>
+                        <strong>🏆 Top-Liste</strong>
+                        <span>Sieh die besten Kurse auf einen Blick</span>
                     </div>
                     <div class="guide-item">
-                        <strong>Bewertung</strong>
-                        <span>1.0 - 5.0 ⭐ (Durchschnitt von Studierenden)</span>
-                    </div>
-                    <div class="guide-item">
-                        <strong>Tipps</strong>
-                        <span>Insider-Tipps von Studierenden</span>
+                        <strong>👤 Ersteller</strong>
+                        <span>Nachvollziehbar, wer was eingetragen hat</span>
                     </div>
                 </div>
             </div>
@@ -704,8 +817,15 @@
     <!-- Modal -->
     <div id="courseModal" class="modal">
         <div class="modal-content">
-            <h2 class="modal-header">Neuer Kurs</h2>
+            <h2 class="modal-header" id="modalTitle">Neuer Kurs</h2>
             <form id="courseForm">
+                <input type="hidden" id="editCourseId">
+                
+                <div class="form-group">
+                    <label class="form-label">Dein Name *</label>
+                    <input type="text" class="form-input" id="createdBy" required placeholder="z.B. Max Mustermann">
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Kursname *</label>
                     <input type="text" class="form-input" id="courseName" required placeholder="z.B. Einführung in die Informatik">
@@ -775,74 +895,134 @@
 
                 <div class="form-group">
                     <label class="form-label">Insider-Tipps von Studierenden</label>
-                    <textarea class="form-textarea" id="courseTips" placeholder="Was sollten andere über diesen Kurs wissen? Tipps zur Prüfungsvorbereitung, empfohlene Literatur, etc."></textarea>
+                    <textarea class="form-textarea" id="courseTips" placeholder="Was sollten andere über diesen Kurs wissen?"></textarea>
                 </div>
 
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal()">Abbrechen</button>
-                    <button type="submit" class="btn-primary">Kurs hinzufügen</button>
+                    <button type="submit" class="btn-primary" id="submitBtn">Kurs hinzufügen</button>
                 </div>
             </form>
         </div>
     </div>
 
-  <script>
-    // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Supabase Credentials
-    const SUPABASE_URL = 'https://jwwfrbodwalnygcawhmv.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_eYi4vhmS-EGg9iEZAxc8Gw_jttyVG_F'; // Prüfe diesen Key nochmal im Dashboard (er ist ungewöhnlich kurz)
+    <script>
+        // ⚠️ WICHTIG: Ersetze diese Werte mit deinen Supabase Credentials
+        const SUPABASE_URL = 'https://jwwfrbodwalnygcawhmv.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_eYi4vhmS-EGg9iEZAxc8Gw_jttyVG_F';
 
-    // ÄNDERUNG: Variable umbenannt in supabaseClient
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let courses = [];
-    let currentFilter = 'alle';
+        let courses = [];
+        let currentFilter = 'alle';
+        let editingCourseId = null;
 
-    async function init() {
-        await loadCourses();
-        setupSearch();
-        hideLoading();
-    }
-
-    function hideLoading() {
-        const loader = document.getElementById('loadingIndicator');
-        if (loader) loader.style.display = 'none';
-    }
-
-    async function loadCourses() {
-        try {
-            // Überall supabaseClient statt supabase nutzen
-            const { data, error } = await supabaseClient
-                .from('courses')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-
-            courses = data || [];
-            renderCourses();
-            updateStats();
-        } catch (error) {
-            console.error('Error loading courses:', error);
-            // alert('Fehler beim Laden...');
-        }
-    }
-
-        // Open modal
-        function openModal() {
-            document.getElementById('courseModal').classList.add('active');
+        async function init() {
+            await loadCourses();
+            setupSearch();
         }
 
-        // Close modal
+        async function loadCourses() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('courses')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                courses = data || [];
+                renderCourses();
+                renderTopCourses();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+
+        // Render top courses
+        function renderTopCourses() {
+            const topCoursesContainer = document.getElementById('topCoursesList');
+            const ratedCourses = courses.filter(c => c.rating && c.rating > 0)
+                .sort((a, b) => b.rating - a.rating)
+                .slice(0, 3);
+
+            if (ratedCourses.length === 0) {
+                topCoursesContainer.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                        Noch keine bewerteten Kurse. Sei der Erste und bewerte einen Kurs! 🌟
+                    </div>
+                `;
+                return;
+            }
+
+            const rankClasses = ['gold', 'silver', 'bronze'];
+            const medals = ['🥇', '🥈', '🥉'];
+
+            topCoursesContainer.innerHTML = ratedCourses.map((course, index) => `
+                <div class="top-course-card">
+                    <div class="top-course-rank ${rankClasses[index]}">${medals[index]}</div>
+                    <div class="top-course-name">${course.name}</div>
+                    <div class="top-course-meta">
+                        <span class="top-course-meta-item">📚 ${course.fachbereich || 'N/A'}</span>
+                        <span class="top-course-meta-item">⭐ ${course.ects} ECTS</span>
+                        <span class="top-course-meta-item">📅 ${course.semester}</span>
+                    </div>
+                    ${course.created_by ? `<div class="created-by">von ${course.created_by}</div>` : ''}
+                    <div class="top-course-rating">
+                        ${course.rating.toFixed(1)} ⭐
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(courseId = null) {
+            const modal = document.getElementById('courseModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (courseId) {
+                // Edit mode
+                editingCourseId = courseId;
+                const course = courses.find(c => c.id === courseId);
+                
+                modalTitle.textContent = 'Kurs bearbeiten';
+                submitBtn.textContent = 'Änderungen speichern';
+                
+                document.getElementById('editCourseId').value = courseId;
+                document.getElementById('createdBy').value = course.created_by || '';
+                document.getElementById('courseName').value = course.name;
+                document.getElementById('courseFachbereich').value = course.fachbereich || '';
+                document.getElementById('courseECTS').value = course.ects;
+                document.getElementById('courseSemester').value = course.semester;
+                document.getElementById('courseFormat').value = course.format || '';
+                document.getElementById('courseDifficulty').value = course.difficulty;
+                document.getElementById('courseEffort').value = course.effort || '';
+                document.getElementById('courseExam').value = course.exam || '';
+                document.getElementById('courseRating').value = course.rating || '';
+                document.getElementById('courseTips').value = course.tips || '';
+            } else {
+                // Add mode
+                editingCourseId = null;
+                modalTitle.textContent = 'Neuer Kurs';
+                submitBtn.textContent = 'Kurs hinzufügen';
+                document.getElementById('courseForm').reset();
+                document.getElementById('editCourseId').value = '';
+            }
+            
+            modal.classList.add('active');
+        }
+
         function closeModal() {
             document.getElementById('courseModal').classList.remove('active');
             document.getElementById('courseForm').reset();
+            editingCourseId = null;
         }
 
-        // Add course
-       document.getElementById('courseForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+        document.getElementById('courseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-            const course = {
+            const courseData = {
                 name: document.getElementById('courseName').value,
                 fachbereich: document.getElementById('courseFachbereich').value,
                 ects: parseInt(document.getElementById('courseECTS').value),
@@ -852,28 +1032,47 @@
                 effort: parseFloat(document.getElementById('courseEffort').value) || null,
                 exam: document.getElementById('courseExam').value || null,
                 rating: parseFloat(document.getElementById('courseRating').value) || null,
-                tips: document.getElementById('courseTips').value || null
+                tips: document.getElementById('courseTips').value || null,
+                created_by: document.getElementById('createdBy').value
             };
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('courses')
-                    .insert([course])
-                    .select();
+                if (editingCourseId) {
+                    // Update existing course
+                    const { data, error } = await supabaseClient
+                        .from('courses')
+                        .update(courseData)
+                        .eq('id', editingCourseId)
+                        .select();
 
-                if (error) throw error;
+                    if (error) throw error;
 
-                courses.unshift(data[0]);
+                    const index = courses.findIndex(c => c.id === editingCourseId);
+                    if (index !== -1) {
+                        courses[index] = data[0];
+                    }
+                } else {
+                    // Insert new course
+                    const { data, error } = await supabaseClient
+                        .from('courses')
+                        .insert([courseData])
+                        .select();
+
+                    if (error) throw error;
+
+                    courses.unshift(data[0]);
+                }
+
                 renderCourses();
+                renderTopCourses();
                 updateStats();
                 closeModal();
             } catch (error) {
-                console.error('Error adding course:', error);
-                alert('Fehler beim Hinzufügen des Kurses: ' + error.message);
+                console.error('Error saving course:', error);
+                alert('Fehler beim Speichern: ' + error.message);
             }
         });
 
-        // Delete course
         async function deleteCourse(id) {
             if (!confirm('Möchtest du diesen Kurs wirklich löschen?')) return;
 
@@ -887,14 +1086,14 @@
 
                 courses = courses.filter(c => c.id !== id);
                 renderCourses();
+                renderTopCourses();
                 updateStats();
             } catch (error) {
                 console.error('Error deleting course:', error);
-                alert('Fehler beim Löschen des Kurses: ' + error.message);
+                alert('Fehler beim Löschen: ' + error.message);
             }
         }
 
-        // Filter by difficulty
         function filterDifficulty(difficulty) {
             currentFilter = difficulty;
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -904,14 +1103,12 @@
             renderCourses();
         }
 
-        // Search
         function setupSearch() {
             document.getElementById('searchInput').addEventListener('input', function(e) {
                 renderCourses();
             });
         }
 
-        // Render courses
         function renderCourses() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             let filteredCourses = courses;
@@ -924,7 +1121,8 @@
                 filteredCourses = filteredCourses.filter(c => 
                     c.name.toLowerCase().includes(searchTerm) ||
                     (c.fachbereich && c.fachbereich.toLowerCase().includes(searchTerm)) ||
-                    (c.tips && c.tips.toLowerCase().includes(searchTerm))
+                    (c.tips && c.tips.toLowerCase().includes(searchTerm)) ||
+                    (c.created_by && c.created_by.toLowerCase().includes(searchTerm))
                 );
             }
 
@@ -947,7 +1145,10 @@
 
             tbody.innerHTML = filteredCourses.map(course => `
                 <tr>
-                    <td class="course-name">${course.name}</td>
+                    <td>
+                        <div class="course-name">${course.name}</div>
+                        ${course.created_by ? `<div class="created-by">von ${course.created_by}</div>` : ''}
+                    </td>
                     <td>${course.fachbereich || '—'}</td>
                     <td>${course.ects}</td>
                     <td>${course.semester}</td>
@@ -959,6 +1160,7 @@
                     <td style="max-width: 300px; white-space: normal;">${course.tips || '—'}</td>
                     <td>
                         <div class="actions">
+                            <button class="icon-btn edit" onclick="openModal(${course.id})" title="Bearbeiten">✏️</button>
                             <button class="icon-btn delete" onclick="deleteCourse(${course.id})" title="Löschen">🗑️</button>
                         </div>
                     </td>
@@ -966,11 +1168,11 @@
             `).join('');
         }
 
-        // Update stats
         function updateStats() {
             const total = courses.length;
             const avgECTS = total > 0 ? courses.reduce((sum, c) => sum + c.ects, 0) / total : 0;
-            const avgEffort = total > 0 ? courses.filter(c => c.effort).reduce((sum, c) => sum + c.effort, 0) / courses.filter(c => c.effort).length : 0;
+            const coursesWithEffort = courses.filter(c => c.effort);
+            const avgEffort = coursesWithEffort.length > 0 ? coursesWithEffort.reduce((sum, c) => sum + c.effort, 0) / coursesWithEffort.length : 0;
             const ratedCourses = courses.filter(c => c.rating > 0);
             const avgRating = ratedCourses.length > 0 ? ratedCourses.reduce((sum, c) => sum + c.rating, 0) / ratedCourses.length : 0;
 
@@ -980,17 +1182,15 @@
             document.getElementById('stat-rating').textContent = avgRating > 0 ? avgRating.toFixed(1) + ' ⭐' : '—';
         }
 
-        // Close modal on outside click
         document.getElementById('courseModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
             }
         });
 
-        // Initialize app
         init();
 
-        // Subscribe to real-time changes
+        // Real-time updates
         supabaseClient
             .channel('courses')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, payload => {
